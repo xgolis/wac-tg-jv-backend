@@ -1,0 +1,115 @@
+definitions:
+  app.recordReq:
+    properties:
+      dateOfBirth:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      patientName:
+        type: string
+    type: object
+  app.requestID:
+    properties:
+      id:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /delete:
+    delete:
+      description: Delete a record from Database
+      parameters:
+      - description: The collection name
+        example: patients
+        in: query
+        name: collection
+        required: true
+        type: string
+      - description: Delete Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/app.requestID'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Delete a record
+  /record:
+    put:
+      consumes:
+      - application/json
+      description: The endpoint inserts sent data to the database
+      parameters:
+      - description: The collection name
+        example: patients
+        in: query
+        name: collection
+        required: true
+        type: string
+      - description: Insert Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/app.recordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Insert record to DB
+  /records:
+    get:
+      description: Get all records from selected collection in database
+      parameters:
+      - description: The collection name
+        example: patients
+        in: query
+        name: collection
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get all records
+  /update:
+    post:
+      description: Update a record from Database
+      parameters:
+      - description: The collection name
+        example: patients
+        in: query
+        name: collection
+        required: true
+        type: string
+      - description: Delete Request Body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/app.recordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Update a record
+swagger: "2.0"

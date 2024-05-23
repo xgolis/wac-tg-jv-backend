@@ -1,0 +1,176 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/delete": {
+            "delete": {
+                "description": "Delete a record from Database",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete a record",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "patients",
+                        "description": "The collection name",
+                        "name": "collection",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Delete Request Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/app.requestID"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/record": {
+            "put": {
+                "description": "The endpoint inserts sent data to the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Insert record to DB",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "patients",
+                        "description": "The collection name",
+                        "name": "collection",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Insert Request Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/app.recordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/records": {
+            "get": {
+                "description": "Get all records from selected collection in database",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get all records",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "patients",
+                        "description": "The collection name",
+                        "name": "collection",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/update": {
+            "post": {
+                "description": "Update a record from Database",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update a record",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "patients",
+                        "description": "The collection name",
+                        "name": "collection",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "Delete Request Body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/app.recordReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "app.recordReq": {
+            "type": "object",
+            "properties": {
+                "dateOfBirth": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "patientName": {
+                    "type": "string"
+                }
+            }
+        },
+        "app.requestID": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

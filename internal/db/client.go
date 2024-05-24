@@ -71,6 +71,10 @@ func DeleteRecord(DB *mongo.Database, collection string, id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	if id == "" {
+		return fmt.Errorf("no id provided")
+	}
+
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return fmt.Errorf("invalid id format: %v", err)
@@ -86,6 +90,19 @@ func DeleteRecord(DB *mongo.Database, collection string, id string) error {
 	}
 
 	fmt.Println("Deleted record ID:", deleteResult)
+
+	if collection == "requirements" {
+		filter = bson.M{"requirementID": id}
+		fmt.Printf("Deleting comment\n")
+
+		deleteResult, err = DB.Collection("comments").DeleteOne(ctx, filter)
+		fmt.Println(deleteResult.DeletedCount)
+		if err != nil {
+			return fmt.Errorf("failed deleting comment")
+		}
+
+		fmt.Println("Deleted comment ID: ", deleteResult)
+	}
 
 	return nil
 }

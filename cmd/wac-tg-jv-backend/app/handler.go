@@ -15,7 +15,7 @@ import (
 
 type Response struct {
 	Message string        `json:"message,omitempty"`
-	Results []primitive.M `json:"results,omitempty"`
+	Results []primitive.M `json:"results"`
 }
 
 type requestID struct {
@@ -113,7 +113,14 @@ func getRecord(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(&Response{Results: results})
+	response := Response{
+		Results: results,
+	}
+
+	if results == nil {
+		response.Results = []primitive.M{}
+	}
+	json.NewEncoder(w).Encode(&response)
 }
 
 // putRecord
@@ -226,8 +233,6 @@ func updateRecord(w http.ResponseWriter, req *http.Request) {
 }
 
 func filterRecord(w http.ResponseWriter, req *http.Request) {
-	fmt.Printf("Got request %s\n", req.URL.RawQuery)
-
 	collection := req.URL.Query().Get("collection")
 
 	body, err := ioutil.ReadAll(req.Body)
@@ -251,5 +256,12 @@ func filterRecord(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(&Response{Results: results})
+	response := Response{
+		Results: results,
+	}
+
+	if results == nil {
+		response.Results = []primitive.M{}
+	}
+	json.NewEncoder(w).Encode(&response)
 }

@@ -34,12 +34,12 @@ type recordReq struct {
 func MakeHandlers() *http.ServeMux {
 	mux := *http.NewServeMux()
 	// mux.HandleFunc("/", sendHello)
-	mux.HandleFunc("/records", getRecord)
-	mux.HandleFunc("/docs/", swaggerHandler)
-	mux.HandleFunc("/record", putRecord)
-	mux.HandleFunc("/filter", filterRecord)
-	mux.HandleFunc("/delete", deleteRecord)
-	mux.HandleFunc("/update", updateRecord)
+	mux.HandleFunc("/records", enableCORS(getRecord))
+	mux.HandleFunc("/docs/", enableCORS(swaggerHandler))
+	mux.HandleFunc("/record", enableCORS(putRecord))
+	mux.HandleFunc("/filter", enableCORS(filterRecord))
+	mux.HandleFunc("/delete", enableCORS(deleteRecord))
+	mux.HandleFunc("/update", enableCORS(updateRecord))
 
 	return &mux
 }
@@ -48,12 +48,20 @@ func swaggerHandler(res http.ResponseWriter, req *http.Request) {
 	httpSwagger.WrapHandler(res, req)
 }
 
-func setHeader(methods string, w *http.ResponseWriter) {
-	(*w).Header().Set("Content-Type", "application/json")
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	(*w).Header().Set("Access-Control-Allow-Methods", methods)
+func enableCORS(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		next(w, r)
+	}
 }
 
 func sendError(w *http.ResponseWriter, err error, statusCode int) {
@@ -73,8 +81,6 @@ func sendError(w *http.ResponseWriter, err error, statusCode int) {
 }
 
 func sendHello(w http.ResponseWriter, req *http.Request) {
-	setHeader("GET, POST, PUT, DELETE", &w)
-
 	resp := &Response{
 		Message: "Hello",
 	}
@@ -99,8 +105,6 @@ func sendHello(w http.ResponseWriter, req *http.Request) {
 //		@Error       500        {string}  string "Internal Server Error"
 //		@Router			/records [GET]
 func getRecord(w http.ResponseWriter, req *http.Request) {
-	setHeader("GET", &w)
-
 	collection := req.URL.Query().Get("collection")
 
 	results, err := db.GetAllColection(DB, collection)
@@ -125,8 +129,6 @@ func getRecord(w http.ResponseWriter, req *http.Request) {
 //		@Error       500        {string}  string "Internal Server Error"
 //		@Router			/record [PUT]
 func putRecord(w http.ResponseWriter, req *http.Request) {
-	setHeader("PUT", &w)
-
 	collection := req.URL.Query().Get("collection")
 
 	var record bson.M
@@ -158,8 +160,6 @@ func putRecord(w http.ResponseWriter, req *http.Request) {
 //		@Error       500        {string}  string "Internal Server Error"
 //		@Router			/delete [DELETE]
 func deleteRecord(w http.ResponseWriter, req *http.Request) {
-	setHeader("DELETE", &w)
-
 	collection := req.URL.Query().Get("collection")
 
 	var requestBody requestID
@@ -191,8 +191,6 @@ func deleteRecord(w http.ResponseWriter, req *http.Request) {
 //		@Error       500        {string}  string "Internal Server Error"
 //		@Router			/update [POST]
 func updateRecord(w http.ResponseWriter, req *http.Request) {
-	setHeader("POST", &w)
-
 	collection := req.URL.Query().Get("collection")
 
 	body, err := ioutil.ReadAll(req.Body)
@@ -228,15 +226,22 @@ func updateRecord(w http.ResponseWriter, req *http.Request) {
 }
 
 func filterRecord(w http.ResponseWriter, req *http.Request) {
-	setHeader("POST", &w)
+	fmt.Printf("Got request %s\n", req.URL.RawQuery)
 
 	collection := req.URL.Query().Get("collection")
 
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusInternalServerError)
+		return
+	}
+	defer req.Body.Close()
+
 	var requestBody bson.M
 
-	err := json.NewDecoder(req.Body).Decode(&requestBody)
+	err = json.Unmarshal(body, &requestBody)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		sendError(&w, err, http.StatusBadRequest)
 		return
 	}
 

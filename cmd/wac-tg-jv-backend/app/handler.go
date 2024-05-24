@@ -23,11 +23,12 @@ type requestID struct {
 }
 
 type recordReq struct {
-	ID          string `json:"id,omitempty"`
-	Name        string `json:"name,omitempty"`
-	PatientName string `json:"patientName,omitempty"`
-	DateOfBirth string `json:"dateOfBirth,omitempty"`
-	Description string `json:"description,omitempty"`
+	ID            string `json:"id,omitempty"`
+	Name          string `json:"name,omitempty"`
+	PatientName   string `json:"patientName,omitempty"`
+	DateOfBirth   string `json:"dateOfBirth,omitempty"`
+	Description   string `json:"description,omitempty"`
+	RequirementID string `json:"requirementID,omitempty"`
 }
 
 func MakeHandlers() *http.ServeMux {
@@ -36,6 +37,7 @@ func MakeHandlers() *http.ServeMux {
 	mux.HandleFunc("/records", getRecord)
 	mux.HandleFunc("/docs/", swaggerHandler)
 	mux.HandleFunc("/record", putRecord)
+	mux.HandleFunc("/filter", filterRecord)
 	mux.HandleFunc("/delete", deleteRecord)
 	mux.HandleFunc("/update", updateRecord)
 
@@ -223,4 +225,26 @@ func updateRecord(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Write([]byte("ok"))
+}
+
+func filterRecord(w http.ResponseWriter, req *http.Request) {
+	setHeader("POST", &w)
+
+	collection := req.URL.Query().Get("collection")
+
+	var requestBody bson.M
+
+	err := json.NewDecoder(req.Body).Decode(&requestBody)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	results, err := db.FilterCollection(DB, collection, requestBody)
+	if err != nil {
+		sendError(&w, err, http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(w).Encode(&Response{Results: results})
 }

@@ -28,6 +28,33 @@ func GetAllColection(DB *mongo.Database, colection string) ([]bson.M, error) {
 	return results, nil
 }
 
+func FilterCollection(DB *mongo.Database, collection string, filter bson.M) ([]primitive.M, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if filter["id"] != nil && filter["id"] != "" {
+		objID, err := primitive.ObjectIDFromHex(filter["id"].(string))
+		if err != nil {
+			return nil, fmt.Errorf("invalid id format: %v", err)
+		}
+		filter["_id"] = objID
+		delete(filter, "id")
+	}
+
+	cursor, err := DB.Collection(collection).Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var results []bson.M
+	if err = cursor.All(ctx, &results); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
 func PutRecord(DB *mongo.Database, collection string, record bson.M) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

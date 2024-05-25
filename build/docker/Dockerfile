@@ -3,17 +3,11 @@ FROM golang:latest AS build
 WORKDIR /app
 
 # download dependencies - low frequency of changes
-COPY go.mod go.sum ./
+COPY . ./
 RUN go mod download
-
-# copy sources - higher frequency of changes
-COPY internal/ internal/
-COPY cmd/ cmd/
 
 RUN CGO_ENABLED=0 GOOS=linux \
     go build \
-      -ldflags="-w -s" \
-      -installsuffix 'static' \
       -o ./wac-tg-jv-backend ./cmd/wac-tg-jv-backend
 
 ############################################

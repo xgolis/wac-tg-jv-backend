@@ -90,7 +90,7 @@ func getConfig() (*Config, error) {
 	}
 
 	// mongodb://username:password@host:port/database
-	url := fmt.Sprintf("mongodb://%s:%s@%s:%s/wac-tg-jv", mongoUser, mongoPassword, mongoURL, mongoPort)
+	url := fmt.Sprintf("mongodb://%s:%s@%s:%s", mongoUser, mongoPassword, mongoURL, mongoPort)
 	return &Config{
 		MongoDBConn: url,
 		Server:      serverURL,

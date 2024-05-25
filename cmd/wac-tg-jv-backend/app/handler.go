@@ -232,6 +232,17 @@ func updateRecord(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("ok"))
 }
 
+// filterRecord
+//
+//		@Summary		Filter a record
+//		@Description	Filter a record from Database
+//		@Produce		json
+//	 	@Success		200 {object} string
+//	 	@Param       collection query     string         true  "The collection name"  example(patients)
+//		@Param       body       body      recordReq  true  "Filter Request Body"
+//		@Error       400        {string}  string "Bad Request"
+//		@Error       500        {string}  string "Internal Server Error"
+//		@Router			/filter [POST]
 func filterRecord(w http.ResponseWriter, req *http.Request) {
 	collection := req.URL.Query().Get("collection")
 

@@ -11,6 +11,8 @@ definitions:
         type: string
       patientName:
         type: string
+      requirementID:
+        type: string
     type: object
   app.requestID:
     properties:

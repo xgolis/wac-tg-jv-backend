@@ -172,6 +172,9 @@ const docTemplate = `{
                 },
                 "patientName": {
                     "type": "string"
+                },
+                "requirementID": {
+                    "type": "string"
                 }
             }
         },

@@ -161,6 +161,9 @@
                 },
                 "patientName": {
                     "type": "string"
+                },
+                "requirementID": {
+                    "type": "string"
                 }
             }
         },
